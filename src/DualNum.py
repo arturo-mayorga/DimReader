@@ -4,6 +4,7 @@ class DualNum():
     def __init__(self,val,dot):
         self.val = val
         self.dot = dot
+        self.shape = np.shape(val)
 
         self.type = type(val)
 
@@ -39,17 +40,8 @@ class DualNum():
 
     def __mul__(self, other):
         other = self.checkType(other)
-
-        val = np.dot(self.val,other.val)
-        dot = np.dot(self.val,other.dot) + np.dot(self.dot,other.val)
-        return DualNum(val, dot)
-
-    def __truediv__(self, other):
-        other = self.checkType(other)
-        val = self.val / other.val
-        dot = (np.dot(self.dot,other.val) )
-        dot = (dot- np.dot(self.val,other.dot))
-        dot = dot/np.power(other.val,2)
+        val = np.dot(self.val, other.val)
+        dot = np.dot(self.val, other.dot) + np.dot(self.dot,other.val)
         return DualNum(val, dot)
 
     def __neg__(self):
@@ -88,14 +80,25 @@ class DualNum():
     def __abs__(self):
         return np.abs(self.val)
 
+    def __truediv__(self, other):
+        return self.trueDivHelper(other)
+
+    def trueDivHelper(self, other):
+        other = self.checkType(other)
+        val = self.val / other.val
+        dot = (np.dot(self.dot,other.val) )
+        dot = (dot- np.dot(self.val,other.dot))
+        dot = dot/np.power(other.val,2)
+        return DualNum(val, dot)
+
     def __rdiv__(self, other):
         other = self.checkType(other)
-        out = other/self
-        return out
+        # out = other/self
+        return other.trueDivHelper(self)
     def __rtruediv__(self, other):
         other = self.checkType(other)
-        out = other / self
-        return out
+        # out = other / self
+        return other.trueDivHelper(self)
 
     def __lt__(self, other):
         compVal = other

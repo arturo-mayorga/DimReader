@@ -58,7 +58,6 @@ class runTsne:
             for proc in procs:
                 proc.join()
 
-
             points = []
             self.resultVect = [0] * (2 * n)
             for i in range(n):
@@ -68,7 +67,7 @@ class runTsne:
 
         self.points = points
 
-    def loopFunc(self, pts, minI, maxI, dotArr, origY, beta, iY, xPts, yPts, allXResults=None, allYResults=None):
+    def loopFunc(self, pts, minI, maxI, dotArr, origY, beta, iY, xPts, yPts):
         for i in range(minI, maxI):
 
             if self.perturb is None:
@@ -79,9 +78,9 @@ class runTsne:
 
             t = tsne.tSNE(self.dualNumPts, initial_dims=m / 2, perplexity=self.perplex, initY=origY,
                              maxIter=1, initBeta=beta, betaTries=1, initIY=iY)
-            results = t.runTSNE()
+            results = t.runTSNE(True)
 
-            print("Min: ", minI, "I: ", i, "max: ", maxI)
+            # print("Min: ", minI, "I: ", i, "max: ", maxI)
 
             dotArr[2 * i] = results[i][0].dot
             dotArr[2 * i + 1] = results[i][1].dot
@@ -122,7 +121,9 @@ def readFile(filename):
             try:
                 rowDat.append(float(row[i]))
             except:
-                print("invalid data type - must be numeric")
+                print("[125] invalid data type - must be numeric")
+                print(i)
+                print(row[i])
                 exit(0)
         points.append(rowDat)
     return points
@@ -130,10 +131,14 @@ def readFile(filename):
 def runProjection(projection, points, perturbations):
     derivVects = []
 
+    pertCount = 0
+
     for pert in perturbations:
+        print('pert num', pertCount)
         projection.calculateValues(np.array(points), np.array(pert))
         derivVects.append(projection.resultVect)
         projPts = projection.points
+        pertCount = pertCount + 1
 
     date = str(datetime.datetime.fromtimestamp(time.time())).replace(" ", "_")
     date = date.split(".")[0]

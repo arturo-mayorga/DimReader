@@ -403,7 +403,7 @@ def readFile(filename):
             try:
                 rowDat.append(float(row[i]))
             except:
-                print("invalid data type - must be numeric")
+                print("406 invalid data type - must be numeric")
                 exit(0)
         points.append(rowDat)
     return points
@@ -441,7 +441,6 @@ def plotIsolines(plot,vVector,gridCoord):
 
     numlines = 10
     for i in range(numlines):
-        print(i)
         isoval = (maxval - minval) * i / float(numlines) + minval
         msq = MarchingSqaures(gridPoints, isoval, gridCoord)
         edges = msq.interpIsolines
@@ -629,21 +628,27 @@ def plot(classes,colors,gridcoord,points,resultVect):
         if classes is not None:
             l = pg.LegendItem((100, 60), offset=(70, 30))  # args are (size, offset)
             l.setParentItem(plot)
-            uniqClass = set(pd.classes)
+            uniqClass = set(classes)
             uniqClass = list(uniqClass)
             uniqClass.sort()
             for i, name in enumerate(uniqClass):
-                pts = [i for i, x in enumerate(classes) if x == name]
-                print(len(pts))
 
-                brush = pg.mkBrush(pd.colors[i][0], colors[i][1], colors[i][2])
-                scatter = pg.ScatterPlotItem(points[pts, 0], points[pts, 1], brush=brush)
-                plot.addItem(scatter)
-                l.addItem(scatter, name)
+                brush = pg.mkBrush(colors[i][0], colors[i][1], colors[i][2])
+
+                pltPoints = []
+                for pi in range(len(points) - 1):
+                    if name == classes[pi]:
+                        pltPoints.append({'pos': (points[pi][0], points[pi][1]), 'brush': brush})
+
+
+                s = pg.ScatterPlotItem(brush=brush)
+                s.addPoints(pltPoints)
+                
+                plot.addItem(s)
+                l.addItem(s, name)
         else:
             pltPoints = []
             for i in range(len(points)):
-                print(i)
                 brush = pg.mkBrush(colors[i][0], colors[i][1],
                                 colors[i][2])
                 pltPoints.append({'pos': (points[i][0], points[i][1]), 'brush': brush})
@@ -721,7 +726,7 @@ def calcColors(vals):
         except:
             return None
 
-def generateClassColors(self,numClasses):
+def generateClassColors(numClasses):
         cols = [[227, 26, 28],[178, 223, 138],[66, 206, 227],[255, 127, 0],[31, 120, 180],  [51, 160, 44], [251, 154, 153],
                 [253, 191, 111],  [202, 178, 214], [106, 61, 154]]
         cols = np.array(cols)
@@ -734,22 +739,26 @@ def generateClassColors(self,numClasses):
 if __name__=="__main__":
     classes = False
     numArgs = len(sys.argv)
+    axisNum = 0
     if (numArgs >= 2):
         inputFile = sys.argv[1]
         if numArgs >= 3:
             classes = True
             classFile = sys.argv[2]
-        if numArgs==4:
+        if numArgs>=4:
             classCol = int(sys.argv[3])
+            if numArgs >= 5:
+                axisNum = int(sys.argv[4])
         else:
             classCol = 0
     else:
         print("Invalid number of arguments")
-        print("DimReaderPlot dimReaderOutput.csv fileWithClasses.csv(optional) classColumn(optional)")
+        print("DimReaderPlot dimReaderOutput.csv fileWithClasses.csv(optional) classColumn(optional) gridAxis(optional)")
         exit(0)
 
     data = np.array(readFile(inputFile))
     points = data[:,0:2]
+
     colors =None
     if classes:
         classData = np.array(readGeneralFile(classFile))
@@ -761,9 +770,10 @@ if __name__=="__main__":
             colors = calcColors(classes)
 
     resultVect = []
+    
     for i in range(len(data)):
-        resultVect.append(data[i][2])
-        resultVect.append(data[i][3])
+        resultVect.append(data[i][axisNum + 2])
+        resultVect.append(data[i][axisNum + 3])
 
     gridCoord = generateGrid(points)
     plot(classes,colors,gridCoord,points,resultVect)

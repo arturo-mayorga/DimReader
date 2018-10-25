@@ -46,12 +46,12 @@ class tSNE:
         PD = D*P
 
         bPD =(beta * np.sum(PD))[0]
-        if(sumP.__class__ is DualNum.DualNum):
-             H = sumP.log() + bPD  / sumP
+        if self.dNum:
+            H = np.log(sumP) + bPD.val  / sumP
+            P = P / DualNum.DualNum(sumP, 0)
         else:
-            H= np.log(sumP)+bPD/sumP
-
-        P = P / sumP
+            H = np.log(sumP ) + bPD / sumP
+            P = P / sumP
         return H, P
 
     def calcPtDist(self,points):
@@ -73,7 +73,7 @@ class tSNE:
         """Performs a binary search to get P-values in such a way that each conditional Gaussian has the same perplexity."""
 
         # Initialize some variables
-        print( "Computing pairwise distances...")
+        # print( "Computing pairwise distances...")
         if self.dNum:
            temp = pow(X,2)
            tempT = DualNum.DualNum(temp.val.T,temp.dot.T)
@@ -122,8 +122,8 @@ class tSNE:
         # Loop over all datapoints
         for i in range(n):
             # print(progress
-            if i % 500 == 0:
-                print( "Computing P-values for point ", i, " of ", n, "...")
+            # if i % 500 == 0:
+                # print( "Computing P-values for point ", i, " of ", n, "...")
 
             # Compute the Gaussian kernel and entropy for the current precision
             betamin = -np.inf
@@ -173,7 +173,7 @@ class tSNE:
 
         self.beta = beta
         # Return final P-matrix
-        print( "Mean value of sigma: ", np.mean(np.sqrt(1 / beta)))
+        # print( "Mean value of sigma: ", np.mean(np.sqrt(1 / beta)))
         return P
 
     #tsne with dual numbers
@@ -379,8 +379,8 @@ class tSNE:
         return Y;
 
     #determines whether to run tsne with dual numbers or without
-    def runTSNE(self):
-        self.dNum = False
+    def runTSNE(self, dnum=False):
+        self.dNum = dnum
         if type(self.X) is DualNum.DualNum:
             self.dNum = True
         if self.dNum:
