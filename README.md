@@ -1,6 +1,25 @@
 # DimReader
 Axis lines that explain non-linear projections
 
+# Getting Started
+TLDR;
+```
+cd src
+python DimReaderPlot.py dim-reader-sample_output.csv IRIS-labels.csv 0 3
+```
+
+Navigate to the src directory and generate a DimReader output file.  Note, this takes a while.
+```
+cd src
+python RimReader.py IRIS.csv all tsne
+```
+
+This will generate a file that looks like `2018-10-25_08:12:49_output.csv`.  You can then plot this file or the provided `dim-reader-sample_output.csv` if you want to skip the previous step.
+
+```
+python DimReaderPlot.py dim-reader-sample_output.csv IRIS-labels.csv 0 3
+```
+
 # Acknowledgements
 The code in this repo is based on the additional materials attached to the ieee vis 2018 proceedings for the paper DimReader: Axis lines that explain non-linear projections by Rebecca Faust, David Glickenstein, and Carlos Scheidegger.
 
